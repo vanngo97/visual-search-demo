@@ -1,47 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Visual Search UI Demo</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Visual Search Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --brand:#01132b;
+      --bg:#f8f9fa;
+      --card:#fff;
+      --text:#202124;
+      --radius:12px;
+      --shadow:0 2px 8px rgba(0,0,0,.08);
+      --transition:.3s ease;
+    }
+    [data-theme="dark"]{
+      --bg:#121212;
+      --card:#1e1e1e;
+      --text:#e5e5e5;
+      --brand:#8ab4f8;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,Arial,Helvetica,sans-serif}
+    body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh;transition:background var(--transition),color var(--transition)}
+    header{background:var(--brand);padding:16px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+    header h1{flex:1;font-size:1.4rem;font-weight:600;color:#fff}
+    header input{flex:2;max-width:420px;padding:10px 14px;border:none;border-radius:var(--radius);font-size:16px}
+    .ai-summary{background:var(--card);margin:16px 24px;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .filters{display:flex;gap:12px;margin:12px 24px 0;flex-wrap:wrap}
+    .filters button{border:none;padding:8px 16px;border-radius:20px;background:#e8f0fe;color:var(--brand);font-weight:500;cursor:pointer;transition:background .2s}
+    .filters button.active{background:var(--brand);color:#fff}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:16px 24px}
+    .card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer}
+    .card img{width:100%;aspect-ratio:4/3;object-fit:cover}
+    .card-body{padding:12px;font-weight:500;font-size:15px}
+    .mock-map{position:relative;height:300px;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);background:#f8f9fa;margin:16px 24px}
+    .mock-map svg{width:100%;height:100%}
+    .pin{cursor:pointer;transition:transform .2s}
+    .pin:hover{transform:scale(1.2)}
+    @media(max-width:600px){
+      .gallery{grid-template-columns:1fr 1fr}
+      header input{font-size:14px}
+    }
+
+    .video-section{
+    margin:24px;
+    }
+    .video-section h2{
+      margin-bottom:12px;
+      font-size:1.25rem;
+      font-weight:600;
+    }
+    .video-carousel{
+      display:flex;
+      gap:16px;
+      overflow-x:auto;
+      padding-bottom:8px;
+    }
+    .video-carousel a{
+      flex:0 0 240px;
+      text-decoration:none;
+      color:inherit;
+      background:var(--card);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      transition:transform .2s;
+    }
+    .video-carousel a:hover{
+      transform:translateY(-2px);
+    }
+    .video-carousel img{
+      width:100%;
+      aspect-ratio:16/9;
+      object-fit:cover;
+    }
+    .video-carousel span{
+      display:block;
+      padding:8px 12px;
+      font-size:14px;
+      font-weight:500;
+    }
+
+    .map-section{
+      margin:24px;
+    }
+    .map-section h2{
+      margin-bottom:12px;
+      font-size:1.25rem;
+      font-weight:600;
+    }
+
+    .static-map h2{
+      margin-bottom:12px;
+      font-size:1.25rem;
+      font-weight:600;
+    }
+    .static-map{
+      position:relative;
+      width:100%;
+      max-width:1000px;
+      margin:16px auto;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+    .static-map img{
+      width:100%;
+      display:block;
+    }
+    .overlay{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+    }
+    .pin{
+      position:absolute;
+      padding:4px 8px;
+      font-size:12px;
+      font-weight:600;
+      color:#fff;
+      border-radius:12px;
+      transform:translate(-50%,-100%);
+      box-shadow:0 2px 4px rgba(0,0,0,.25);
+    }
+    .pin.spicy   {background:#ea4335;}
+    .pin.vegan   {background:#34a853;}
+    .pin.popular {background:#fbbc04;}
+    
+    /* Pin positions */
+    .pin:nth-child(1){top:45%;left:35%;}
+    .pin:nth-child(2){top:35%;left:50%;}
+    .pin:nth-child(3){top:55%;left:45%;}
+    
+    /* Footer styles */
+    footer{
+      background:var(--card);
+      padding:20px 24px;
+      margin-top:auto;
+      text-align:center;
+      border-top:1px solid rgba(0,0,0,.1);
+    }
+    footer p{
+      color:var(--text);
+      font-size:14px;
+      opacity:0.7;
+    }
+  </style>
 </head>
+
 <body>
-  <header>
-    <h1>Visual Search Explorer</h1>
-    <button id="themeToggle" aria-label="toggle theme">🌗</button>
-    <input id="searchInput" type="text" placeholder="Ask something like 'Best street food in Bangkok'" />
-  </header>
+<header>
+  <img src="https://openclipart.org/download/232064/Logo-Logo-White-Background.svg" alt="Logo" style="max-width:74px;">
+  <input id="searchInput" type="text" placeholder="Best street food in Bangkok">
+</header>
 
-  <main>
-    <section class="visual-clusters">
-      <h2>Visual Clusters</h2>
-      <div class="image-grid" id="imageGrid"></div>
-    </section>
+<!-- AI Summary -->
+<div class="ai-summary" id="aiSummary">
+  <h2>AI Overview</h2>
+  <p id="summaryText">Type a query above to get an AI-powered summary.</p>
+</div>
 
-    <aside class="sidebar" id="sidebar">
-      <h2>AI Summary</h2>
-      <div id="aiSummary">
-        Ask a question to receive an AI-powered overview.
-      </div>
+<!-- Filter Chips -->
+<div class="filters" id="filterBar">
+  <button data-filter="all" class="active">All</button>
+  <button data-filter="spicy">Spicy</button>
+  <button data-filter="vegan">Vegan</button>
+  <button data-filter="popular">Popular</button>
+</div>
 
-      <div class="filters">
-        <h3>Filters</h3>
-        <button data-tag="spicy">Spicy</button>
-        <button data-tag="vegan">Vegan</button>
-        <button data-tag="popular">Popular</button>
-      </div>
-    </aside>
+<!-- Gallery -->
+<section class="gallery" id="gallery"></section>
 
-    <button id="sidebarToggle" aria-label="toggle sidebar">☰</button>
-  </main>
+<!-- Related Videos -->
+<section class="video-section">
+  <h2>Related Videos</h2>
+  <div class="video-carousel">
+    <a href="https://vanngo.framer.website/" target="_blank">
+      <img src="https://www.bangkokfoodtours.com/wp-content/uploads/2023/12/Bangkoks-Chinatown-is-the-epicenter-of-amazing-street-food.jpg" alt="Bangkok street food tour">
+      <span>Bangkok Street-Food Tour</span>
+    </a>
+    <a href="https://vanngo.framer.website/" target="_blank">
+      <img src="https://www.travelandleisure.com/thmb/0vBZL11obssIPShxzC89OZqqqQg=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/TAL-bangkok-thailand-MSTVISITCITY0325-e0567533052f4f2cbd883732a9d81858.jpg" alt="Top 10 Thai dishes">
+      <span>Top 10 Must-Try Thai Dishes</span>
+    </a>
+    <a href="https://vanngo.framer.website/" target="_blank">
+      <img src="https://www.eatingthaifood.com/wp-content/uploads/2011/07/stir-fried-water-mimosa.jpg" alt="What I love about Thai food">
+      <span>My Fav Healthy Thai Food</span>
+    </a>
+  </div>
+</section>
 
-  <footer>
-    <p>Mock UI for Product Exploration | Built by Van</p>
-  </footer>
+<!-- Mock Map -->
+<section class="map-section">
+  <h2>Places to Try</h2>
+  <div class="static-map">
+    <img src="https://i.ibb.co/Jw1P6k3X/Screenshot-2025-07-16-at-5-21-28-PM.png" alt="Bangkok street-food hotspots">
+    <div class="overlay">
+      <span class="pin spicy">Som Tam</span>
+      <span class="pin vegan">Mango Sticky Rice</span>
+      <span class="pin popular">Pad Thai</span>
+    </div>
+  </div>
+</section>
 
-  <script src="script.js"></script>
+<script>
+/* --- Mock data ---------------------------------------------------------- */
+const dishes = [
+  {name:'Som Tam',        img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Som_tam_thai.JPG/1200px-Som_tam_thai.JPG',      tags:['spicy','popular']},
+  {name:'Pad Thai',       img:'https://hoctiengthai.com/uploads/images/padthainettinh-tuycuaamthuc-thai-2.jpg',     tags:['popular']},
+  {name:'Mango Sticky Rice',img:'https://www.eatingthaifood.com/wp-content/uploads/2016/04/mango-sticky-rice.jpg', tags:['vegan','popular']},
+  {name:'Tom Yum',        img:'https://www.thespruceeats.com/thmb/Xeuc-EHJhp7ujBxNdBeSfU19OAw=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/easy-tom-yum-soup-with-coconut-milk-tom-khaa-3217131-hero-01-96fc5b8bcbce4c7ea3f69910ba74216d.jpg',      tags:['spicy']},
+  {name:'Coconut Pancake',img:'https://static.vecteezy.com/system/resources/previews/017/385/929/large_2x/thai-dessert-khanom-krok-or-thai-coconut-milk-pancake-in-paper-plate-sweet-meal-street-food-in-thailand-photo.jpg',tags:['vegan']}
+];
+
+/* --- Render gallery ------------------------------------------------------ */
+const gallery = document.getElementById('gallery');
+const summaryText = document.getElementById('summaryText');
+
+function renderGallery(filter='all'){
+  gallery.innerHTML='';
+  const list = filter==='all' ? dishes : dishes.filter(d=>d.tags.includes(filter));
+  list.forEach(d=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <img src="${d.img}" alt="${d.name}">
+      <div class="card-body">${d.name}</div>`;
+    gallery.appendChild(card);
+  });
+  summaryText.textContent = `Here is the top ${list.length} street-food dishes in Bangkok ranked by freshness & local reviews.`;
+}
+
+/* --- Filters ------------------------------------------------------------- */
+document.getElementById('filterBar').addEventListener('click',e=>{
+  if(!e.target.matches('button')) return;
+  document.querySelectorAll('#filterBar button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderGallery(e.target.dataset.filter);
+});
+
+/* --- Search box ---------------------------------------------------------- */
+document.getElementById('searchInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter' && e.target.value.trim()){
+    summaryText.textContent=`AI Summary for “${e.target.value.trim()}” – Bangkok’s top street foods, ranked by freshness & local reviews.`;
+    renderGallery('all');
+  }
+});
+
+renderGallery('all');
+</script>
+
+<footer>
+    <p>Mock UI | The Product Hub by Van Ngo</p>
+</footer>
 </body>
 </html>
