@@ -5,33 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Visual Search UI Demo</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
     <h1>Visual Search Explorer</h1>
+    <button id="themeToggle" aria-label="toggle theme">🌗</button>
     <input id="searchInput" type="text" placeholder="Ask something like 'Best street food in Bangkok'" />
   </header>
 
   <main>
     <section class="visual-clusters">
       <h2>Visual Clusters</h2>
-      <div class="image-grid" id="imageGrid">
-        <!-- Images inserted dynamically -->
-      </div>
+      <div class="image-grid" id="imageGrid"></div>
     </section>
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <h2>AI Summary</h2>
       <div id="aiSummary">
         Ask a question to receive an AI-powered overview.
       </div>
+
       <div class="filters">
         <h3>Filters</h3>
-        <button onclick="filterImages('spicy')">Spicy</button>
-        <button onclick="filterImages('vegan')">Vegan</button>
-        <button onclick="filterImages('popular')">Popular</button>
+        <button data-tag="spicy">Spicy</button>
+        <button data-tag="vegan">Vegan</button>
+        <button data-tag="popular">Popular</button>
       </div>
     </aside>
+
+    <button id="sidebarToggle" aria-label="toggle sidebar">☰</button>
   </main>
 
   <footer>
